@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Chemical Formulas for Ionic Compounds</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .chem-font {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ion-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .ion-card:hover {
+            transform: scale(1.05);
+        }
+        .sub { vertical-align: sub; font-size: 0.75em; line-height: 0; }
+        .sup { vertical-align: super; font-size: 0.75em; line-height: 0; }
+        
+        /* Custom scrollbar for feedback */
+        .feedback-scroll::-webkit-scrollbar { width: 4px; }
+        .feedback-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Container - Increased max-width for a bigger screen -->
+    <div class="max-w-6xl w-full bg-white rounded-3xl card-shadow overflow-hidden flex flex-col md:flex-row min-h-[750px]">
+        
+        <!-- Sidebar / Menu -->
+        <div class="w-full md:w-1/4 bg-slate-800 text-white p-8 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-2 mb-10">
+                    <div class="w-10 h-10 bg-cyan-400 rounded-lg flex items-center justify-center text-slate-900 font-bold text-2xl">I</div>
+                    <h1 class="text-xl font-bold tracking-tight">Writing Chemical Formulas for<br><span class="text-cyan-400">Ionic Compounds</span></h1>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Select Mode</p>
+                    <button onclick="startGame('type1')" class="w-full text-left p-5 rounded-xl bg-slate-700 hover:bg-cyan-600 border-l-4 border-cyan-400 transition-all">
+                        <div class="font-bold text-xl">Type I Binary</div>
+                        <div class="text-xs text-slate-300">Fixed Charge Metals</div>
+                    </button>
+                    <button onclick="startGame('type2')" class="w-full text-left p-5 rounded-xl bg-slate-700 hover:bg-purple-600 border-l-4 border-purple-400 transition-all">
+                        <div class="font-bold text-xl">Type II Binary</div>
+                        <div class="text-xs text-slate-300">Transition Metals</div>
+                    </button>
+                    <button onclick="startGame('poly')" class="w-full text-left p-5 rounded-xl bg-slate-700 hover:bg-pink-600 border-l-4 border-pink-400 transition-all">
+                        <div class="font-bold text-xl">Polyatomic Ions</div>
+                        <div class="text-xs text-slate-300">Compounds with Groups</div>
+                    </button>
+                    <button onclick="startGame('mix')" class="w-full text-left p-5 rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 border-l-4 border-yellow-400 shadow-lg transition-all">
+                        <div class="font-bold text-xl">Mastery Mix</div>
+                        <div class="text-xs text-slate-200">The Ultimate Test!</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-slate-700">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase tracking-tighter">Current Streak</div>
+                        <div id="streak-display" class="text-4xl font-bold text-yellow-400">0</div>
+                    </div>
+                    <button onclick="toggleReference()" class="text-base text-cyan-400 hover:text-cyan-300 underline font-semibold">Reference Sheet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area - Expanded for better visibility -->
+        <div class="w-full md:w-3/4 p-10 relative bg-slate-50 flex flex-col">
+            
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="flex-1 flex flex-col justify-center items-center text-center fade-in">
+                <div class="w-24 h-24 bg-cyan-100 rounded-full flex items-center justify-center mb-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </div>
+                <h2 class="text-4xl font-bold text-slate-800 mb-4">Ready to build compounds?</h2>
+                <p class="text-slate-500 text-lg max-w-md">Select a practice category from the menu on the left to start writing chemical formulas.</p>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden flex-1 flex flex-col fade-in">
+                <div class="mb-6">
+                    <span id="difficulty-tag" class="px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest text-white mb-4 inline-block">Mode</span>
+                    <h3 class="text-slate-500 text-xl leading-none">Write the formula for:</h3>
+                    <div id="compound-name" class="text-5xl font-bold text-slate-800 mt-2 uppercase tracking-tight">Sodium Chloride</div>
+                </div>
+
+                <!-- Ion Visualization - Larger cards -->
+                <div class="flex gap-6 mb-8">
+                    <div id="cation-card" class="ion-card flex-1 p-6 bg-white rounded-3xl border-2 border-cyan-200 text-center shadow-sm">
+                        <div class="text-xs text-cyan-500 font-bold uppercase mb-2 tracking-widest">Cation</div>
+                        <div class="chem-font text-4xl font-bold" id="cation-symbol">Na<span class="sup">1+</span></div>
+                    </div>
+                    <div id="anion-card" class="ion-card flex-1 p-6 bg-white rounded-3xl border-2 border-orange-200 text-center shadow-sm">
+                        <div class="text-xs text-orange-500 font-bold uppercase mb-2 tracking-widest">Anion</div>
+                        <div class="chem-font text-4xl font-bold" id="anion-symbol">Cl<span class="sup">1-</span></div>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="block text-lg font-semibold text-slate-500 tracking-wide">Your Formula:</label>
+                        <div id="formatted-preview" class="chem-font text-4xl text-cyan-600 font-bold h-12"></div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <input type="text" id="formula-input" 
+                            class="flex-1 chem-font text-3xl p-5 border-2 border-slate-200 rounded-2xl focus:border-cyan-500 outline-none transition-all placeholder:text-slate-300"
+                            placeholder="Type formula here..."
+                            autocomplete="off"
+                            oninput="updatePreview(this.value)"
+                            onkeypress="handleKeyPress(event)">
+                        <button id="check-btn" onclick="checkAnswer()" class="bg-slate-800 text-white px-10 rounded-2xl font-bold text-xl hover:bg-slate-700 transition-colors shadow-lg">Check Answer</button>
+                    </div>
+                </div>
+
+                <!-- Explanation / Feedback Area -->
+                <div id="feedback-container" class="mt-6 flex-1 flex flex-col bg-slate-100 rounded-3xl overflow-hidden hidden">
+                    <div id="feedback-header" class="px-6 py-4 font-bold text-white text-xl text-center">Result</div>
+                    <div id="feedback-body" class="p-8 text-lg text-slate-700 overflow-y-auto feedback-scroll flex-1">
+                        <!-- Explanation goes here -->
+                    </div>
+                    <div class="p-6 bg-slate-200 flex justify-center">
+                        <button onclick="nextQuestion()" class="bg-white px-10 py-4 rounded-xl font-bold text-xl text-slate-800 shadow-md hover:bg-slate-50 transition-all">Next Question →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reference Modal - Larger Content -->
+    <div id="reference-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] overflow-y-auto p-10">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">Ion Reference Sheet</h2>
+                <button onclick="toggleReference()" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <h4 class="font-bold text-xl text-cyan-600 border-b-2 pb-3 mb-4">Common Cations</h4>
+                    <ul class="text-lg space-y-2 chem-font">
+                        <li>Na<span class="sup">1+</span>: Sodium</li>
+                        <li>K<span class="sup">1+</span>: Potassium</li>
+                        <li>Li<span class="sup">1+</span>: Lithium</li>
+                        <li>Mg<span class="sup">2+</span>: Magnesium</li>
+                        <li>Ca<span class="sup">2+</span>: Calcium</li>
+                        <li>Ba<span class="sup">2+</span>: Barium</li>
+                        <li>Al<span class="sup">3+</span>: Aluminum</li>
+                        <li>Fe<span class="sup">2+</span>: Iron (II)</li>
+                        <li>Fe<span class="sup">3+</span>: Iron (III)</li>
+                        <li>Cu<span class="sup">1+</span>: Copper (I)</li>
+                        <li>Cu<span class="sup">2+</span>: Copper (II)</li>
+                        <li>Pb<span class="sup">2+</span>: Lead (II)</li>
+                        <li>NH<span class="sub">4</span><span class="sup">1+</span>: Ammonium</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xl text-orange-600 border-b-2 pb-3 mb-4">Common Anions</h4>
+                    <ul class="text-lg space-y-2 chem-font">
+                        <li>Cl<span class="sup">1-</span>: Chloride</li>
+                        <li>F<span class="sup">1-</span>: Fluoride</li>
+                        <li>Br<span class="sup">1-</span>: Bromide</li>
+                        <li>O<span class="sup">2-</span>: Oxide</li>
+                        <li>S<span class="sup">2-</span>: Sulfide</li>
+                        <li>N<span class="sup">3-</span>: Nitride</li>
+                        <li>P<span class="sup">3-</span>: Phosphide</li>
+                        <li>OH<span class="sup">1-</span>: Hydroxide</li>
+                        <li>NO<span class="sub">3</span><span class="sup">1-</span>: Nitrate</li>
+                        <li>SO<span class="sub">4</span><span class="sup">2-</span>: Sulfate</li>
+                        <li>CO<span class="sub">3</span><span class="sup">2-</span>: Carbonate</li>
+                        <li>PO<span class="sub">4</span><span class="sup">3-</span>: Phosphate</li>
+                        <li>ClO<span class="sub">3</span><span class="sup">1-</span>: Chlorate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Definitions
+        const cations = {
+            type1: [
+                { name: "Sodium", symbol: "Na", charge: 1 },
+                { name: "Potassium", symbol: "K", charge: 1 },
+                { name: "Magnesium", symbol: "Mg", charge: 2 },
+                { name: "Calcium", symbol: "Ca", charge: 2 },
+                { name: "Aluminum", symbol: "Al", charge: 3 },
+                { name: "Lithium", symbol: "Li", charge: 1 },
+                { name: "Barium", symbol: "Ba", charge: 2 }
+            ],
+            type2: [
+                { name: "Iron (II)", symbol: "Fe", charge: 2 },
+                { name: "Iron (III)", symbol: "Fe", charge: 3 },
+                { name: "Copper (I)", symbol: "Cu", charge: 1 },
+                { name: "Copper (II)", symbol: "Cu", charge: 2 },
+                { name: "Lead (II)", symbol: "Pb", charge: 2 },
+                { name: "Lead (IV)", symbol: "Pb", charge: 4 },
+                { name: "Tin (II)", symbol: "Sn", charge: 2 },
+                { name: "Tin (IV)", symbol: "Sn", charge: 4 }
+            ],
+            poly: [
+                { name: "Ammonium", symbol: "NH4", charge: 1, isPoly: true }
+            ]
+        };
+
+        const anions = {
+            binary: [
+                { name: "chloride", symbol: "Cl", charge: -1 },
+                { name: "oxide", symbol: "O", charge: -2 },
+                { name: "nitride", symbol: "N", charge: -3 },
+                { name: "fluoride", symbol: "F", charge: -1 },
+                { name: "sulfide", symbol: "S", charge: -2 },
+                { name: "bromide", symbol: "Br", charge: -1 },
+                { name: "phosphide", symbol: "P", charge: -3 }
+            ],
+            poly: [
+                { name: "nitrate", symbol: "NO3", charge: -1, isPoly: true },
+                { name: "sulfate", symbol: "SO4", charge: -2, isPoly: true },
+                { name: "phosphate", symbol: "PO4", charge: -3, isPoly: true },
+                { name: "hydroxide", symbol: "OH", charge: -1, isPoly: true },
+                { name: "carbonate", symbol: "CO3", charge: -2, isPoly: true },
+                { name: "chlorate", symbol: "ClO3", charge: -1, isPoly: true }
+            ]
+        };
+
+        let currentGame = {
+            mode: '',
+            streak: 0,
+            question: null
+        };
+
+        // UI Logic
+        function startGame(mode) {
+            currentGame.mode = mode;
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            
+            const tag = document.getElementById('difficulty-tag');
+            tag.innerText = mode.replace('type', 'Type ').replace('poly', 'Polyatomic').replace('mix', 'Mastery');
+            
+            const colors = { type1: 'bg-cyan-500', type2: 'bg-purple-500', poly: 'bg-pink-500', mix: 'bg-slate-800' };
+            tag.className = `px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest text-white mb-4 inline-block ${colors[mode]}`;
+
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            let catList = [], aniList = [];
+            
+            if (currentGame.mode === 'type1') {
+                catList = cations.type1;
+                aniList = anions.binary;
+            } else if (currentGame.mode === 'type2') {
+                catList = cations.type2;
+                aniList = anions.binary;
+            } else if (currentGame.mode === 'poly') {
+                catList = [...cations.type1, ...cations.poly];
+                aniList = anions.poly;
+            } else {
+                catList = [...cations.type1, ...cations.type2, ...cations.poly];
+                aniList = [...anions.binary, ...anions.poly];
+            }
+
+            const cation = catList[Math.floor(Math.random() * catList.length)];
+            const anion = aniList[Math.floor(Math.random() * aniList.length)];
+
+            // Calculate GCD and subs for explanation
+            const gcd = (x, y) => (!y ? x : gcd(y, x % y));
+            const divisor = gcd(cation.charge, Math.abs(anion.charge));
+            const cSub = Math.abs(anion.charge) / divisor;
+            const aSub = cation.charge / divisor;
+
+            currentGame.question = { 
+                cation, anion, 
+                answer: calculateFormula(cation, anion),
+                cSub, aSub
+            };
+            
+            // Update UI with explicit 1 in charges
+            document.getElementById('feedback-container').classList.add('hidden');
+            document.getElementById('compound-name').innerText = `${cation.name} ${anion.name}`;
+            document.getElementById('cation-symbol').innerHTML = `${formatSubscripts(cation.symbol)}<span class="sup">${cation.charge}+</span>`;
+            document.getElementById('anion-symbol').innerHTML = `${formatSubscripts(anion.symbol)}<span class="sup">${Math.abs(anion.charge)}-</span>`;
+            document.getElementById('formula-input').value = '';
+            document.getElementById('formula-input').disabled = false;
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('formatted-preview').innerHTML = '';
+            document.getElementById('formula-input').focus();
+        }
+
+        function calculateFormula(c, a) {
+            const c_charge = c.charge;
+            const a_charge = Math.abs(a.charge);
+
+            const gcd = (x, y) => (!y ? x : gcd(y, x % y));
+            const divisor = gcd(c_charge, a_charge);
+
+            let c_sub = a_charge / divisor;
+            let a_sub = c_charge / divisor;
+
+            let formula = "";
+            if (c.isPoly && c_sub > 1) formula += `(${c.symbol})${c_sub}`;
+            else formula += `${c.symbol}${c_sub > 1 ? c_sub : ''}`;
+
+            if (a.isPoly && a_sub > 1) formula += `(${a.symbol})${a_sub}`;
+            else formula += `${a.symbol}${a_sub > 1 ? a_sub : ''}`;
+
+            return formula;
+        }
+
+        function formatSubscripts(str) {
+            return str.replace(/\d+/g, '<span class="sub">$&</span>');
+        }
+
+        function updatePreview(val) {
+            document.getElementById('formatted-preview').innerHTML = formatSubscripts(val);
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById('formula-input').value.trim();
+            const q = currentGame.question;
+            const correct = q.answer;
+            const container = document.getElementById('feedback-container');
+            const header = document.getElementById('feedback-header');
+            const body = document.getElementById('feedback-body');
+
+            document.getElementById('formula-input').disabled = true;
+            document.getElementById('check-btn').disabled = true;
+            container.classList.remove('hidden');
+
+            if (input.toLowerCase() === correct.toLowerCase()) {
+                header.innerText = "✨ Excellent!";
+                header.className = "px-6 py-4 font-bold text-white text-xl text-center bg-green-500";
+                body.innerHTML = `
+                    <p class="mb-3 text-xl">Great job! <strong>${formatSubscripts(correct)}</strong> is the correct formula for ${q.cation.name} ${q.anion.name}.</p>
+                    <p class="text-base text-slate-500">The charges cancel out perfectly: (${q.cSub} × ${q.cation.charge}+) + (${q.aSub} × ${Math.abs(q.anion.charge)}-) = 0.</p>
+                `;
+                currentGame.streak++;
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            } else {
+                header.innerText = "💡 Learning Moment";
+                header.className = "px-6 py-4 font-bold text-white text-xl text-center bg-orange-500";
+                
+                // Construct logic explanation
+                let logic = `To form an ionic compound, the total positive charge must equal the total negative charge.`;
+                
+                logic += `<br><br>1. <strong>Identify Charges:</strong> ${q.cation.name} has a <strong>${q.cation.charge}+</strong> charge and ${q.anion.name} has a <strong>${Math.abs(q.anion.charge)}-</strong> charge.`;
+                
+                logic += `<br><br>2. <strong>Balance Charges:</strong> We need <strong>${q.cSub}</strong> cation(s) and <strong>${q.aSub}</strong> anion(s) to reach a net charge of zero. 
+                <span class="block mt-2 text-base text-slate-500">Total Positive: (${q.cSub} × ${q.cation.charge}) = +${q.cSub * q.cation.charge} <br>Total Negative: (${q.aSub} × ${Math.abs(q.anion.charge)}) = -${q.aSub * Math.abs(q.anion.charge)}</span>`;
+                
+                if (q.anion.isPoly && q.aSub > 1) {
+                    logic += `<br>3. <strong>Parentheses Rule:</strong> Since ${q.anion.symbol} is a polyatomic ion and we need ${q.aSub} of them, we must use parentheses: (${q.anion.symbol})${q.aSub}.`;
+                }
+
+                body.innerHTML = `
+                    <div class="mb-6 flex items-center gap-4">
+                        <span class="text-red-500 line-through text-2xl">${formatSubscripts(input || 'Empty')}</span>
+                        <span class="text-slate-400">→</span>
+                        <span class="text-green-600 font-bold text-4xl">${formatSubscripts(correct)}</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-inner">
+                        ${logic}
+                    </div>
+                `;
+                currentGame.streak = 0;
+            }
+            document.getElementById('streak-display').innerText = currentGame.streak;
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter' && !document.getElementById('check-btn').disabled) checkAnswer();
+            else if (e.key === 'Enter' && document.getElementById('check-btn').disabled) nextQuestion();
+        }
+
+        function toggleReference() {
+            const modal = document.getElementById('reference-modal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
